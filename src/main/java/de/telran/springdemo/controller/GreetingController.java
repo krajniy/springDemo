@@ -1,67 +1,37 @@
 package de.telran.springdemo.controller;
 
 import de.telran.springdemo.model.Greeting;
+import de.telran.springdemo.service.GreetingService;
+import de.telran.springdemo.service.GreetingServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @SuppressWarnings("unused")
 public class GreetingController {
-    //POST GET PUT PATCH DELETE
+    @Autowired
+    private GreetingService service;
 
-    private static final List<Greeting> list = new ArrayList<>();
-
-    @PostMapping("/creategreeting")
+    @RequestMapping(method = RequestMethod.POST, path = "/greet")
     public int createGreeting(@RequestBody Greeting greeting) {
-        list.add(greeting);
-        return list.size() - 1;
+        return service.create(greeting);
     }
 
-
     @GetMapping("/greet/{id}")
-    public String greet(@PathVariable int id) {
-        Greeting g = list.get(id);
-
-        return ("Hello " + g.getValue().repeat(g.getCount()));
+    public ResponseEntity<Greeting> getGreeting(@PathVariable long id) {
+        try {
+            return new ResponseEntity<>(service.get(id), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PatchMapping("/greet/{id}")
     public void modifyGreeting(@PathVariable int id, @RequestParam int count) {
-        list.get(id).setCount(count);
-    }
-
-
-    @GetMapping("/greeteveryone")
-    public String greet() {
-        return "Hello world";
-    }
-
-    @GetMapping("/greetsomeone/{val}") // .../greetsomeone/world
-    public String greetSomeone1(@PathVariable("val") String value) {
-        return "Hello " + value.repeat(2);
-    }
-
-    @GetMapping("/greetsomeone/{val1}/{val2}") // .../greetsomeone/world
-    public String doubleGreet(
-            @PathVariable("val1") String value1,
-            @PathVariable("val2") String value2) {
-        return "Hello " + value1 + " " + value2;
-    }
-
-    @GetMapping("/greetsomeone/{val1}/{val2}/params") // .../greetsomeone/test/world/params?count=2
-
-    public String doubleGreetWithParams(
-            @PathVariable("val1") String value1,
-            @PathVariable("val2") String value2,
-            @RequestParam("count") int count) {
-        return ("Hello " + value1 + " " + value2 + "<br>").repeat(count);
-    }
-
-
-    @GetMapping("/greetsomeone") // .../greetsomeone?val=spring
-    public String greetSomeone2(@RequestParam("val") String value) {
-        return "REQUEST PARAM: Hello " + value;
+        service.update(id, count);
     }
 }
