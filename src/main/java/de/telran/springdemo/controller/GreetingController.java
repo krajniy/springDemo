@@ -4,6 +4,7 @@ import de.telran.springdemo.model.Greeting;
 import de.telran.springdemo.service.GreetingService;
 import de.telran.springdemo.service.GreetingServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,28 @@ import org.springframework.web.bind.annotation.*;
 @SuppressWarnings("unused")
 public class GreetingController {
     @Autowired
+//    @Qualifier("test")
     private GreetingService service;
 
-    @RequestMapping(method = RequestMethod.POST, path = "/greet")
-    public int createGreeting(@RequestBody Greeting greeting) {
-        return service.create(greeting);
+//    @Autowired
+//    public GreetingController(GreetingService service) {
+//        this.service = service;
+//    }
+
+//    @Autowired
+//    public void setService(GreetingService service){
+//        this.service = service;
+//    }
+
+    @PostMapping("/greet")
+    public ResponseEntity<Long> createGreeting(@RequestBody Greeting greeting) {
+        try {
+            return new ResponseEntity<>(service.create(greeting), HttpStatus.OK);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/greet/{id}")
@@ -31,7 +49,14 @@ public class GreetingController {
     }
 
     @PatchMapping("/greet/{id}")
-    public void modifyGreeting(@PathVariable int id, @RequestParam int count) {
-        service.update(id, count);
+    public ResponseEntity<Void> modifyGreeting(@PathVariable int id, @RequestParam int count) {
+        try {
+            service.update(id, count);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -1,4 +1,6 @@
 package de.telran.springdemo.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.telran.springdemo.model.Greeting;
 import de.telran.springdemo.service.GreetingService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,19 +12,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.nio.charset.StandardCharsets;
 
-/*@SpringBootTest()*/
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = GreetingController.class)
 @AutoConfigureMockMvc
@@ -34,6 +35,7 @@ class GreetingControllerTest {
             MediaType.APPLICATION_JSON.getSubtype(),
             StandardCharsets.UTF_8);
 
+    @Autowired ObjectMapper mapper;
     @Autowired MockMvc mockMvc;
 
     @MockBean GreetingService service;
@@ -56,12 +58,19 @@ class GreetingControllerTest {
                     .andExpect(jsonPath("$.count").value(3))
                     .andExpect(jsonPath("$.value").value("Test"))
                     .andDo(print());
+
+            Mockito.verify(service, times(1)).get(any(Long.class));
         }
 
         @Test
         @DisplayName("Greeting not found and 404 returned")
-        void Should_ReturnStatus404() {
+        void Should_ReturnStatus404() throws Exception {
+            Mockito.when(service.get(any(Long.class)))
+                    .thenAnswer(i -> { throw new IllegalArgumentException(); });
 
+            mockMvc.perform(get(API_PATH + "1"))
+                    .andExpect(status().isNotFound())
+                    .andDo(print());
         }
     }
 
@@ -69,5 +78,20 @@ class GreetingControllerTest {
     @DisplayName("POST greeting tests")
     class GreetingCreationTest {
 
+        @Test
+        @DisplayName("Greeting successfully posted")
+        void Should_ReturnIdAndStatus200() throws Exception {
+            Mockito.when(service.create(any(Greeting.class)))
+                    .thenAnswer(i -> 1);
+
+            mockMvc.perform(post(API_PATH)
+                            .content(mapper.writeValueAsString(new Greeting()))
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$").isNotEmpty())
+                    .andExpect(jsonPath("$.id").value(1))
+                    .andDo(print());
+        }
     }
 }

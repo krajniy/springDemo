@@ -1,27 +1,30 @@
 package de.telran.springdemo.service;
 
 import de.telran.springdemo.model.Greeting;
+import de.telran.springdemo.repository.GreetingRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 
-@Service
+@Service("prod")
+//@Primary
 @SuppressWarnings("unused")
 public class GreetingServiceImpl implements GreetingService {
-    private static final List<Greeting> list = new ArrayList<>();
+
+    @Autowired
+    private GreetingRepository repository;
 
 
-    public int create(Greeting greeting) {
-        list.add(greeting);
-        return list.size() - 1;
+    public long create(Greeting greeting) {
+        return repository.save(greeting);
     }
 
     public Greeting get(long id) {
-        return list.get((int) id);
+        return repository.find(id).orElseThrow(IllegalArgumentException::new);
     }
 
     public void update(int id, int count) {
-        list.get(id).setCount(count);
+        Greeting g = repository.find(id).orElseThrow(IllegalArgumentException::new);
+        g.setCount(count);
     }
 }

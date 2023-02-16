@@ -7,6 +7,8 @@ public class Greeting {
 
     private int count;
 
+    public Greeting() {}
+
     public Greeting(String value, int count) {
         this.value = value;
         this.count = count;
