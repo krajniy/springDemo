@@ -9,6 +9,4 @@ public interface GreetingRepository {
     Optional<Greeting> find(long id);
 
     long save(Greeting greeting);
-
-
 }
