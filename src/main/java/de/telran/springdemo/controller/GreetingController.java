@@ -1,15 +1,14 @@
 package de.telran.springdemo.controller;
 
-import de.telran.springdemo.model.Greeting;
+import de.telran.springdemo.entity.Greeting;
 import de.telran.springdemo.service.GreetingService;
-import de.telran.springdemo.service.GreetingServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/greet")
 @SuppressWarnings("unused")
 public class GreetingController {
     @Autowired
@@ -26,18 +25,19 @@ public class GreetingController {
 //        this.service = service;
 //    }
 
-    @PostMapping("/greet")
+    @PostMapping()
     public ResponseEntity<Long> createGreeting(@RequestBody Greeting greeting) {
         try {
             return new ResponseEntity<>(service.create(greeting), HttpStatus.OK);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/greet/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Greeting> getGreeting(@PathVariable long id) {
         try {
             return new ResponseEntity<>(service.get(id), HttpStatus.OK);
@@ -48,7 +48,7 @@ public class GreetingController {
         }
     }
 
-    @PatchMapping("/greet/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<Void> modifyGreeting(@PathVariable int id, @RequestParam int count) {
         try {
             service.update(id, count);

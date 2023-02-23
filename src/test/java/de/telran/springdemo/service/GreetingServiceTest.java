@@ -2,12 +2,9 @@ package de.telran.springdemo.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.telran.springdemo.controller.GreetingController;
-import de.telran.springdemo.model.Greeting;
-import de.telran.springdemo.repository.GreetingRepository;
+import de.telran.springdemo.entity.Greeting;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,8 +48,10 @@ class GreetingControllerTest {
         @Test
         @DisplayName("Greeting found and returned")
         void Should_ReturnGreetingAndStatus200() throws Exception { // /greet/1
+//            Mockito.when(service.get(any(Long.class)))
+//                    .thenAnswer(i -> new Greeting(i.getArgument(0, Long.class), "Test", 3));
             Mockito.when(service.get(any(Long.class)))
-                    .thenAnswer(i -> new Greeting(i.getArgument(0, Long.class), "Test", 3));
+                    .thenAnswer(i -> new Greeting());
 
             mockMvc.perform(get(API_PATH + "1"))
                     .andExpect(status().isOk())

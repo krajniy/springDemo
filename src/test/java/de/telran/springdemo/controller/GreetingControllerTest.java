@@ -1,7 +1,7 @@
 package de.telran.springdemo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.telran.springdemo.model.Greeting;
+import de.telran.springdemo.entity.Greeting;
 import de.telran.springdemo.service.GreetingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,7 +48,7 @@ class GreetingControllerTest {
         @DisplayName("Greeting found and returned")
         void Should_ReturnGreetingAndStatus200() throws Exception { // /greet/1
             Mockito.when(service.get(any(Long.class)))
-                    .thenAnswer(i -> new Greeting(i.getArgument(0, Long.class), "Test", 3));
+                    .thenAnswer(i -> new Greeting());
 
             mockMvc.perform(get(API_PATH + "1"))
                     .andExpect(status().isOk())

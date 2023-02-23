@@ -1,6 +1,6 @@
 package de.telran.springdemo.repository;
 
-import de.telran.springdemo.model.Greeting;
+import de.telran.springdemo.entity.Greeting;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -10,19 +10,19 @@ import java.util.Optional;
 import java.util.Random;
 
 @Component
-public class GreetingRepositoryImpl implements GreetingRepository {
+public class GreetingRepositoryImpl /*implements GreetingRepository*/ {
 
     private static final List<Greeting> list = new ArrayList<>();
 
     @PostConstruct
     public void populateList() {
-        Random r = new Random();
-        for (int i = 0; i < 10; i++) {
-            list.add(new Greeting(i + 1, "Hello World " + i, r.nextInt(5)));
-        }
+//        Random r = new Random();
+//        for (int i = 0; i < 10; i++) {
+//            list.add(new Greeting(i + 1L, "Hello World " + i, r.nextInt(5)));
+//        }
     }
 
-    @Override
+//    @Override
     public Optional<Greeting> find(long id) {
         Greeting value = null;
 
@@ -33,9 +33,9 @@ public class GreetingRepositoryImpl implements GreetingRepository {
         return Optional.ofNullable(value);
     }
 
-    @Override
+//    @Override
     public long save(Greeting greeting) {
-        int id = (int) greeting.getId();
+        int id = Math.toIntExact(greeting.getId());
 
         if (id == 0) {
             list.add(greeting);
